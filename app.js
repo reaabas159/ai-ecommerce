@@ -3,7 +3,9 @@ import { config } from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
-import { v2 as cloudinary } from "cloudinary"; 
+import { v2 as cloudinary } from "cloudinary";
+import "./database/db.js";
+import { createTables } from "./utils/createTables.js"; 
 
 // Load env vars
 config({ path: "./config/config.env" });
@@ -17,7 +19,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_CLIENT_SECRET,
 });
 
-// 2. Middleware
+// Initialize Database Tables 
+createTables();
+
+// Middleware
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
