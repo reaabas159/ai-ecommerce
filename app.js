@@ -6,6 +6,7 @@ import fileUpload from "express-fileupload";
 import { v2 as cloudinary } from "cloudinary";
 import "./database/db.js";
 import { createTables } from "./utils/createTables.js"; 
+import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 
 // Load env vars
 config({ path: "./config/config.env" });
@@ -42,8 +43,12 @@ app.use(
   })
 );
 
+
 app.get("/", (req, res) => {
   res.send("API is working correctly");
 });
+
+
+app.use(errorMiddleware);
 
 export default app;
