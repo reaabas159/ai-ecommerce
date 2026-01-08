@@ -38,12 +38,15 @@ const connectDatabase = async () => {
 };
 
 // Execute connection (non-blocking)
+// In serverless, don't connect on module load - connect on first query
+// This prevents cold start issues
 if (process.env.NODE_ENV !== "production") {
   // In development, connect immediately
-  connectDatabase();
-} else {
-  // In production (Vercel), connect on first request
   connectDatabase().catch(console.error);
+} else {
+  // In production (Vercel), don't connect on module load
+  // Connection will happen automatically on first query
+  // This prevents function crashes during cold start
 }
 
 export default db;

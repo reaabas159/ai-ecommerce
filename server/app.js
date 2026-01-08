@@ -1,6 +1,5 @@
 import express from "express";
 import { config } from "dotenv";
-import cors from "cors";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
 import { createTables } from "./utils/createTables.js";
@@ -168,14 +167,22 @@ app.get("/api/v1/test-cors", (req, res) => {
 
 // Create tables only once (check if tables exist first)
 // In Vercel serverless, this runs on cold start but won't recreate tables if they exist
-if (process.env.NODE_ENV !== "production") {
-  // In development, create tables immediately
-  createTables();
-} else {
-  // In production, create tables on first request (idempotent - won't recreate if exist)
-  createTables().catch((err) => {
-    console.log("Tables may already exist:", err.message);
-  });
+// Wrap in try-catch to prevent crashes
+try {
+  if (process.env.NODE_ENV !== "production") {
+    // In development, create tables immediately
+    createTables().catch((err) => {
+      console.log("Tables creation error (dev):", err.message);
+    });
+  } else {
+    // In production, create tables on first request (idempotent - won't recreate if exist)
+    createTables().catch((err) => {
+      console.log("Tables may already exist:", err.message);
+    });
+  }
+} catch (error) {
+  console.error("Error initializing tables:", error);
+  // Don't crash - tables might already exist
 }
 
 // 404 handler for undefined routes
