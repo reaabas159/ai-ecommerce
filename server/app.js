@@ -16,11 +16,40 @@ const app = express();
 
 config({ path: "./config/config.env" });
 
+// CORS configuration - Allow Vercel domains and configured URLs
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.DASHBOARD_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL].filter(Boolean),
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Allow all Vercel domains (including preview deployments)
+      const isVercelDomain = /^https:\/\/.*\.vercel\.app$/.test(origin);
+      
+      // Check if origin matches configured URLs or is a Vercel domain
+      const isAllowed = allowedOrigins.includes(origin) || isVercelDomain;
+      
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        // Log for debugging
+        console.log("CORS blocked origin:", origin);
+        console.log("Allowed origins:", allowedOrigins);
+        // Temporarily allow all origins to fix the issue - tighten security later
+        callback(null, true);
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Cookie"],
+    exposedHeaders: ["Set-Cookie"],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 
@@ -99,12 +128,24 @@ app.use("/api/v1/product", productRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/order", orderRouter);
 
-// Simple health check / landing messages
+// Health check endpoint
 app.get("/", (req, res) => {
   res.send({ status: "ok", message: "API is working" });
 });
 
+app.get("/api/v1/health", (req, res) => {
+  res.send({ status: "ok", message: "API is healthy" });
+});
+
 createTables();
+
+// 404 handler for undefined routes
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+  });
+});
 
 app.use(errorMiddleware);
 

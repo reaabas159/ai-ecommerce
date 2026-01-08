@@ -12,20 +12,39 @@ const getApiBaseUrl = () => {
     return "http://localhost:4000/api/v1";
   }
   
-  // In production, VITE_API_URL must be set
-  // This will help catch configuration issues early
+  // In production, if VITE_API_URL is not set, log error but don't crash
+  // Use a fallback that will show clear errors in network requests
   console.error(
-    "VITE_API_URL is not set! Please set it in your Vercel environment variables."
+    "⚠️ VITE_API_URL is not set! Please set it in your Vercel environment variables."
   );
-  throw new Error(
-    "API URL not configured. Please set VITE_API_URL environment variable."
+  console.error(
+    "⚠️ API requests will fail. Set VITE_API_URL=https://your-server-url.railway.app/api/v1"
   );
+  
+  // Return empty string so axios will use relative URLs (won't work but won't crash)
+  // This allows the app to load and show proper error messages
+  return "";
 };
 
+const apiBaseUrl = getApiBaseUrl();
+
 export const axiosInstance = axios.create({
-  baseURL: getApiBaseUrl(),
+  baseURL: apiBaseUrl || "/api/v1", // Fallback to relative URL if not set
   withCredentials: true,
 });
+
+// Add request interceptor to log API URL for debugging
+axiosInstance.interceptors.request.use(
+  (config) => {
+    if (!apiBaseUrl) {
+      console.error("API URL not configured. Check Vercel environment variables.");
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Setup response interceptor to handle authentication errors
 // This should be called after the store is initialized
