@@ -5,7 +5,11 @@ This guide will help you configure your deployed applications to communicate pro
 ## Current Deployment Setup
 - **Client**: Deployed on Vercel
 - **Dashboard**: Deployed on Vercel (separate project)
-- **Server**: Deployed on Railway (webservice)
+- **Server**: Deployed on Railway (webservice) **OR** Vercel (serverless)
+
+> **📌 Note**: For deploying the server to **Vercel**, see **[VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)** for complete instructions.
+> 
+> This guide covers **Railway** deployment. Both platforms work, but Vercel offers better integration if your frontends are already on Vercel.
 
 ## Issues Identified
 

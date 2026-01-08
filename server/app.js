@@ -14,7 +14,10 @@ import database from "./database/db.js";
 
 const app = express();
 
-config({ path: "./config/config.env" });
+// Load config only in development (Vercel uses environment variables)
+if (process.env.NODE_ENV !== "production") {
+  config({ path: "./config/config.env" });
+}
 
 // CORS configuration - Allow Vercel domains and configured URLs
 const allowedOrigins = [
@@ -137,7 +140,17 @@ app.get("/api/v1/health", (req, res) => {
   res.send({ status: "ok", message: "API is healthy" });
 });
 
-createTables();
+// Create tables only once (check if tables exist first)
+// In Vercel serverless, this runs on cold start but won't recreate tables if they exist
+if (process.env.NODE_ENV !== "production") {
+  // In development, create tables immediately
+  createTables();
+} else {
+  // In production, create tables on first request (idempotent - won't recreate if exist)
+  createTables().catch((err) => {
+    console.log("Tables may already exist:", err.message);
+  });
+}
 
 // 404 handler for undefined routes
 // Note: In Express 5, using "*" as a path causes a path-to-regexp error.
