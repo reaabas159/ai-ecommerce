@@ -150,25 +150,16 @@ app.get("/api/v1/test-cors", (req, res) => {
   });
 });
 
-// Create tables only once (check if tables exist first)
-// In Vercel serverless, this runs on cold start but won't recreate tables if they exist
-// Wrap in try-catch to prevent crashes
-try {
-  if (process.env.NODE_ENV !== "production") {
-    // In development, create tables immediately
-    createTables().catch((err) => {
-      console.log("Tables creation error (dev):", err.message);
-    });
-  } else {
-    // In production, create tables on first request (idempotent - won't recreate if exist)
-    createTables().catch((err) => {
-      console.log("Tables may already exist:", err.message);
-    });
-  }
-} catch (error) {
-  console.error("Error initializing tables:", error);
-  // Don't crash - tables might already exist
+// Create tables only in development
+// In production (Vercel), tables should already exist - don't create them at module load
+// This prevents serverless function timeouts and errors
+if (process.env.NODE_ENV !== "production") {
+  // In development, create tables immediately (non-blocking)
+  createTables().catch((err) => {
+    console.log("Tables creation error (dev):", err.message);
+  });
 }
+// In production, skip table creation - tables should already exist in the database
 
 // 404 handler for undefined routes
 // Note: In Express 5, using "*" as a path causes a path-to-regexp error.
