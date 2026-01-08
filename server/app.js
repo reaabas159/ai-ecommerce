@@ -140,7 +140,9 @@ app.get("/api/v1/health", (req, res) => {
 createTables();
 
 // 404 handler for undefined routes
-app.use("*", (req, res) => {
+// Note: In Express 5, using "*" as a path causes a path-to-regexp error.
+// We use a handler without a path so it matches any method/URL.
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`,
