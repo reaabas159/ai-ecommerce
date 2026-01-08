@@ -19,42 +19,40 @@ if (process.env.NODE_ENV !== "production") {
   config({ path: "./config/config.env" });
 }
 
-// CORS configuration - Allow Vercel domains and configured URLs
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  process.env.DASHBOARD_URL,
-].filter(Boolean);
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      // Allow all Vercel domains (including preview deployments)
-      const isVercelDomain = /^https:\/\/.*\.vercel\.app$/.test(origin);
-      
-      // Check if origin matches configured URLs or is a Vercel domain
-      const isAllowed = allowedOrigins.includes(origin) || isVercelDomain;
-      
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        // Log for debugging
-        console.log("CORS blocked origin:", origin);
-        console.log("Allowed origins:", allowedOrigins);
-        // Temporarily allow all origins to fix the issue - tighten security later
-        callback(null, true);
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Cookie"],
-    exposedHeaders: ["Set-Cookie"],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  })
-);
+// CORS configuration - Explicitly handle all CORS including preflight
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Allow all Vercel domains
+  const isVercelDomain = origin && /^https:\/\/.*\.vercel\.app$/.test(origin);
+  
+  // Allow configured origins
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    process.env.DASHBOARD_URL,
+  ].filter(Boolean);
+  
+  const isAllowed = !origin || isVercelDomain || allowedOrigins.includes(origin);
+  
+  if (isAllowed && origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else if (isAllowed) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Cookie");
+  res.setHeader("Access-Control-Expose-Headers", "Set-Cookie");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Max-Age", "86400"); // 24 hours
+  
+  // Handle preflight OPTIONS request
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+  
+  next();
+});
 
 app.post(
   "/api/v1/payment/webhook",
@@ -126,18 +124,46 @@ app.use(
   })
 );
 
+// API Routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/order", orderRouter);
 
+// Explicit OPTIONS handler for all routes (backup - catches any missed OPTIONS)
+app.options("*", (req, res) => {
+  const origin = req.headers.origin;
+  const isVercelDomain = origin && /^https:\/\/.*\.vercel\.app$/.test(origin);
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    process.env.DASHBOARD_URL,
+  ].filter(Boolean);
+  
+  if (origin && (isVercelDomain || allowedOrigins.includes(origin))) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Cookie");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.status(204).end();
+});
+
 // Health check endpoint
 app.get("/", (req, res) => {
-  res.send({ status: "ok", message: "API is working" });
+  res.json({ status: "ok", message: "API is working" });
 });
 
 app.get("/api/v1/health", (req, res) => {
-  res.send({ status: "ok", message: "API is healthy" });
+  res.json({ status: "ok", message: "API is healthy" });
+});
+
+// Test CORS endpoint
+app.get("/api/v1/test-cors", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    message: "CORS test successful",
+    origin: req.headers.origin 
+  });
 });
 
 // Create tables only once (check if tables exist first)
