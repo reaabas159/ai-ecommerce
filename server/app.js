@@ -99,6 +99,11 @@ app.use("/api/v1/product", productRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/order", orderRouter);
 
+// Simple health check / landing messages
+app.get("/", (req, res) => {
+  res.send({ status: "ok", message: "API is working" });
+});
+
 createTables();
 
 app.use(errorMiddleware);
