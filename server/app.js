@@ -129,23 +129,8 @@ app.use("/api/v1/product", productRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/order", orderRouter);
 
-// Explicit OPTIONS handler for all routes (backup - catches any missed OPTIONS)
-app.options("*", (req, res) => {
-  const origin = req.headers.origin;
-  const isVercelDomain = origin && /^https:\/\/.*\.vercel\.app$/.test(origin);
-  const allowedOrigins = [
-    process.env.FRONTEND_URL,
-    process.env.DASHBOARD_URL,
-  ].filter(Boolean);
-  
-  if (origin && (isVercelDomain || allowedOrigins.includes(origin))) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Cookie");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.status(204).end();
-});
+// OPTIONS requests are already handled by the CORS middleware above
+// No need for explicit OPTIONS route - Express 5 doesn't support "*" path
 
 // Health check endpoint
 app.get("/", (req, res) => {
