@@ -15,9 +15,16 @@ import path from "path";
 
 const app = express();
 
-const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+const isProduction = process.env.NODE_ENV === "production";
+const uploadsDir = isProduction
+  ? path.join("/tmp", "uploads")
+  : path.join(process.cwd(), "uploads");
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (err) {
+  console.error("Failed to create uploads directory:", err);
 }
 
 // Load config only in development (Vercel uses environment variables)
@@ -129,6 +136,10 @@ app.use(
     useTempFiles: true,
   })
 );
+
+app.get("/favicon.ico", (req, res) => {
+  res.status(204).end();
+});
 
 // API Routes
 app.use("/api/v1/auth", authRouter);
