@@ -16,6 +16,9 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
 
   let uploadedImages = [];
   if (req.files && req.files.images) {
+    if (!process.env.CLOUDINARY_CLIENT_NAME || !process.env.CLOUDINARY_CLIENT_API || !process.env.CLOUDINARY_CLIENT_SECRET) {
+      return next(new ErrorHandler("Cloudinary is not configured. Please set CLOUDINARY_CLIENT_NAME, CLOUDINARY_CLIENT_API, and CLOUDINARY_CLIENT_SECRET.", 500));
+    }
     const images = Array.isArray(req.files.images)
       ? req.files.images
       : [req.files.images];
