@@ -10,8 +10,15 @@ import adminRouter from "./router/adminRoutes.js";
 import orderRouter from "./router/orderRoutes.js";
 import Stripe from "stripe";
 import database from "./database/db.js";
+import fs from "fs";
+import path from "path";
 
 const app = express();
+
+const uploadsDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Load config only in development (Vercel uses environment variables)
 if (process.env.NODE_ENV !== "production") {
@@ -118,7 +125,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   fileUpload({
-    tempFileDir: "./uploads",
+    tempFileDir: uploadsDir,
     useTempFiles: true,
   })
 );
