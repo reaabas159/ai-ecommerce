@@ -17,13 +17,13 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
   let uploadedImages = [];
   if (req.files && req.files.images) {
     console.log("DEBUG: req.files.images exists", !!req.files.images);
-    if (!process.env.CLOUDINARY_CLIENT_NAME || !process.env.CLOUDINARY_CLIENT_API || !process.env.CLOUDINARY_CLIENT_SECRET) {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       console.error("DEBUG: Missing Cloudinary env vars", {
-        CLOUDINARY_CLIENT_NAME: !!process.env.CLOUDINARY_CLIENT_NAME,
-        CLOUDINARY_CLIENT_API: !!process.env.CLOUDINARY_CLIENT_API,
-        CLOUDINARY_CLIENT_SECRET: !!process.env.CLOUDINARY_CLIENT_SECRET,
+        CLOUDINARY_CLOUD_NAME: !!process.env.CLOUDINARY_CLOUD_NAME,
+        CLOUDINARY_API_KEY: !!process.env.CLOUDINARY_API_KEY,
+        CLOUDINARY_API_SECRET: !!process.env.CLOUDINARY_API_SECRET,
       });
-      return next(new ErrorHandler("Cloudinary is not configured. Please set CLOUDINARY_CLIENT_NAME, CLOUDINARY_CLIENT_API, and CLOUDINARY_CLIENT_SECRET.", 500));
+      return next(new ErrorHandler("Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.", 500));
     }
     const images = Array.isArray(req.files.images)
       ? req.files.images
