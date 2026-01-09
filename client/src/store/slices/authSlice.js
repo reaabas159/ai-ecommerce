@@ -165,6 +165,7 @@ const authSlice = createSlice({
   reducers: {
     clearAuth: (state) => {
       state.authUser = null;
+      window?.localStorage?.removeItem("token");
     },
   },
   extraReducers: (builder) => {
@@ -175,6 +176,9 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.isSigningUp = false;
+        if (action.payload?.token) {
+          window?.localStorage?.setItem("token", action.payload.token);
+        }
         // Only set user if it's not an admin (shouldn't happen with registration, but safety check)
         const user = action.payload.user;
         if (user && user.role !== "Admin") {
@@ -193,6 +197,9 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoggingIn = false;
+        if (action.payload?.token) {
+          window?.localStorage?.setItem("token", action.payload.token);
+        }
         // Only set user if it's not an admin
         const user = action.payload.user;
         if (user && user.role !== "Admin") {
@@ -212,26 +219,6 @@ const authSlice = createSlice({
       .addCase(getCurrentUser.fulfilled, (state, action) => {
         state.isCheckingAuth = false;
         // Only set user if it's not an admin
-        const user = action.payload.user;
-        if (user && user.role !== "Admin") {
-          state.authUser = user;
-        } else {
-          state.authUser = null;
-        }
-      })
-      .addCase(getCurrentUser.rejected, (state) => {
-        state.isCheckingAuth = false;
-        state.authUser = null;
-      })
-      // Logout
-      .addCase(logout.fulfilled, (state) => {
-        state.authUser = null;
-      })
-      // Update profile
-      .addCase(updateProfile.pending, (state) => {
-        state.isUpdatingProfile = true;
-      })
-      .addCase(updateProfile.fulfilled, (state, action) => {
         state.isUpdatingProfile = false;
         state.authUser = action.payload.user || state.authUser;
       })

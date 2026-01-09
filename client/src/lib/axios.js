@@ -36,6 +36,11 @@ export const axiosInstance = axios.create({
 // Add request interceptor to log API URL for debugging
 axiosInstance.interceptors.request.use(
   (config) => {
+    const token = window?.localStorage?.getItem("token");
+    if (token && !config.headers?.Authorization) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     if (!apiBaseUrl) {
       console.error("API URL not configured. Check Vercel environment variables.");
     }
