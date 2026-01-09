@@ -12,6 +12,7 @@ import Stripe from "stripe";
 import database from "./database/db.js";
 import fs from "fs";
 import path from "path";
+import { v2 as cloudinary } from "cloudinary";
 
 const app = express();
 
@@ -30,6 +31,27 @@ try {
 // Load config only in development (Vercel uses environment variables)
 if (process.env.NODE_ENV !== "production") {
   config({ path: "./config/config.env" });
+}
+
+const cloudName =
+  process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLIENT_NAME;
+const cloudApiKey =
+  process.env.CLOUDINARY_API_KEY || process.env.CLOUDINARY_CLIENT_API;
+const cloudApiSecret =
+  process.env.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_CLIENT_SECRET;
+
+if (cloudName && cloudApiKey && cloudApiSecret) {
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: cloudApiKey,
+    api_secret: cloudApiSecret,
+  });
+} else {
+  console.warn("Cloudinary config missing:", {
+    cloudName: !!cloudName,
+    cloudApiKey: !!cloudApiKey,
+    cloudApiSecret: !!cloudApiSecret,
+  });
 }
 
 // CORS configuration - Explicitly handle all CORS including preflight
