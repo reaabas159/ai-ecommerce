@@ -32,17 +32,21 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
 
     for (const image of images) {
       console.log("DEBUG: Uploading image from tempFilePath", image.tempFilePath);
-      const result = await cloudinary.uploader.upload(image.tempFilePath, {
-        folder: "Ecommerce_Product_Images",
-        width: 1000,
-        crop: "scale",
-      });
-      console.log("DEBUG: Cloudinary upload succeeded", result.public_id);
-
-      uploadedImages.push({
-        url: result.secure_url,
-        public_id: result.public_id,
-      });
+      try {
+        const result = await cloudinary.uploader.upload(image.tempFilePath, {
+          folder: "Ecommerce_Product_Images",
+          width: 1000,
+          crop: "scale",
+        });
+        console.log("DEBUG: Cloudinary upload succeeded", result.public_id);
+        uploadedImages.push({
+          url: result.secure_url,
+          public_id: result.public_id,
+        });
+      } catch (cloudinaryErr) {
+        console.error("DEBUG: Cloudinary upload failed", cloudinaryErr);
+        return next(new ErrorHandler("Image upload to Cloudinary failed. Check Cloudinary configuration and file.", 500));
+      }
     }
   }
 
