@@ -16,19 +16,28 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
 
   let uploadedImages = [];
   if (req.files && req.files.images) {
+    console.log("DEBUG: req.files.images exists", !!req.files.images);
     if (!process.env.CLOUDINARY_CLIENT_NAME || !process.env.CLOUDINARY_CLIENT_API || !process.env.CLOUDINARY_CLIENT_SECRET) {
+      console.error("DEBUG: Missing Cloudinary env vars", {
+        CLOUDINARY_CLIENT_NAME: !!process.env.CLOUDINARY_CLIENT_NAME,
+        CLOUDINARY_CLIENT_API: !!process.env.CLOUDINARY_CLIENT_API,
+        CLOUDINARY_CLIENT_SECRET: !!process.env.CLOUDINARY_CLIENT_SECRET,
+      });
       return next(new ErrorHandler("Cloudinary is not configured. Please set CLOUDINARY_CLIENT_NAME, CLOUDINARY_CLIENT_API, and CLOUDINARY_CLIENT_SECRET.", 500));
     }
     const images = Array.isArray(req.files.images)
       ? req.files.images
       : [req.files.images];
+    console.log("DEBUG: images count", images.length);
 
     for (const image of images) {
+      console.log("DEBUG: Uploading image from tempFilePath", image.tempFilePath);
       const result = await cloudinary.uploader.upload(image.tempFilePath, {
         folder: "Ecommerce_Product_Images",
         width: 1000,
         crop: "scale",
       });
+      console.log("DEBUG: Cloudinary upload succeeded", result.public_id);
 
       uploadedImages.push({
         url: result.secure_url,
