@@ -19,8 +19,8 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-30">
-      <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4">
+        <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => dispatch(toggleNavbar())}
             className="p-2 hover:bg-gray-100 rounded-lg md:hidden"
@@ -28,7 +28,9 @@ const Header = () => {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+            Admin Dashboard
+          </h1>
         </div>
 
         <div className="flex items-center gap-4">

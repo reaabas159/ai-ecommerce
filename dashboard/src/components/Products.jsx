@@ -53,12 +53,12 @@ const Products = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+      <div className="p-3 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Products</h1>
           <button
             onClick={() => dispatch(toggleCreateProductModal())}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
             Add Product
@@ -73,7 +73,7 @@ const Products = () => {
           <>
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[900px]">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

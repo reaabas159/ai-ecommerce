@@ -62,7 +62,7 @@ const Navbar = () => {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => dispatch(toggleSearchBar())}
               className="p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
@@ -97,20 +97,20 @@ const Navbar = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => dispatch(toggleProfilePanel())}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
+                  className="flex items-center gap-2 px-2 sm:px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
                 >
                   <User className="w-5 h-5" />
                   <span className="hidden sm:inline">{authUser.name}</span>
                 </button>
                 <Link
                   to="/orders"
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
+                  className="hidden md:inline-flex px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
                 >
                   Orders
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-red-600 hover:text-red-700"
+                  className="hidden md:inline-flex px-4 py-2 text-red-600 hover:text-red-700"
                 >
                   Logout
                 </button>
@@ -118,7 +118,7 @@ const Navbar = () => {
             ) : (
               <button
                 onClick={() => dispatch(toggleAuthPopup())}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Login
               </button>

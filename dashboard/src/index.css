@@ -7,13 +7,18 @@
   font-family: "Ubuntu", sans-serif;
   font-style: normal;
   /* font-optical-sizing: auto; */
-  overflow-x: hidden;
   box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
 }
 
 #root {
   background: #f3f3f6;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
