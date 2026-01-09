@@ -44,8 +44,6 @@ export const sendToken = (user, statusCode, message, res) => {
       secure: isProduction,
       // Add path to ensure cookie is sent with all requests
       path: "/",
-      // Don't set domain - let browser handle it for better mobile compatibility
-      // domain: undefined,
     };
 
     res

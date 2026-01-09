@@ -5,37 +5,15 @@ import { toast } from "react-toastify";
 // Place new order
 export const placeNewOrder = createAsyncThunk(
   "order/placeNew",
-  async (orderData, { rejectWithValue, dispatch, getState }) => {
+  async (orderData, { rejectWithValue }) => {
     try {
-      // Verify authentication before placing order
-      const state = getState();
-      if (!state.auth.authUser) {
-        return rejectWithValue("Please login to place an order");
-      }
-
       const response = await axiosInstance.post("/order/new", orderData);
       toast.success(response.data.message || "Order placed successfully");
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to place order";
-      
-      // If it's an auth error, try to refresh auth state once
-      if (error.response?.status === 401 && !error.config?._authRetried) {
-        try {
-          const { getCurrentUser } = await import("./authSlice");
-          await dispatch(getCurrentUser());
-          
-          // Retry the order placement
-          error.config._authRetried = true;
-          const retryResponse = await axiosInstance.post("/order/new", orderData);
-          toast.success(retryResponse.data.message || "Order placed successfully");
-          return retryResponse.data;
-        } catch (retryError) {
-          return rejectWithValue("Your session has expired. Please login again.");
-        }
-      }
-      
-      return rejectWithValue(errorMessage);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to place order"
+      );
     }
   }
 );

@@ -1,6 +1,4 @@
 import axios from "axios";
-import { store } from "../store/store";
-import { getCurrentUser } from "../store/slices/authSlice";
 
 // Determine API base URL
 const getApiBaseUrl = () => {
@@ -33,48 +31,17 @@ const apiBaseUrl = getApiBaseUrl();
 export const axiosInstance = axios.create({
   baseURL: apiBaseUrl || "/api/v1", // Fallback to relative URL if not set
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
-// Add request interceptor to log API URL for debugging and ensure credentials
+// Add request interceptor to log API URL for debugging
 axiosInstance.interceptors.request.use(
   (config) => {
     if (!apiBaseUrl) {
       console.error("API URL not configured. Check Vercel environment variables.");
     }
-    // Ensure withCredentials is always true for cookie-based auth
-    config.withCredentials = true;
     return config;
   },
   (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Add response interceptor to handle 401 errors and refresh auth
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // If we get a 401 and haven't already retried, try to refresh auth
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        // Try to refresh the auth state
-        await store.dispatch(getCurrentUser());
-        
-        // Retry the original request
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails, reject the original error
-        return Promise.reject(error);
-      }
-    }
-
     return Promise.reject(error);
   }
 );

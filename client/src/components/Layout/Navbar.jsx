@@ -26,10 +26,10 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-md sticky top-0 z-40">
-      <div className="container mx-auto px-2 sm:px-4">
-        <div className="flex items-center justify-between h-14 sm:h-16">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="text-lg sm:text-2xl font-bold text-blue-600 truncate max-w-[120px] sm:max-w-none">
+          <Link to="/" className="text-2xl font-bold text-blue-600">
             AIECOMM
           </Link>
 
@@ -62,58 +62,55 @@ const Navbar = () => {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => dispatch(toggleSearchBar())}
-              className="p-1.5 sm:p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
-              aria-label="Search"
+              className="p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
             >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Search className="w-5 h-5" />
             </button>
 
             <button
               onClick={toggleTheme}
-              className="p-1.5 sm:p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
-              aria-label="Toggle theme"
+              className="p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
             >
               {theme === "dark" ? (
-                <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Sun className="w-5 h-5" />
               ) : (
-                <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Moon className="w-5 h-5" />
               )}
             </button>
 
             <button
               onClick={() => dispatch(toggleCart())}
-              className="relative p-1.5 sm:p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
-              aria-label="Shopping cart"
+              className="relative p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
             >
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+              <ShoppingCart className="w-5 h-5" />
               {cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
-                  {cartItemCount > 99 ? "99+" : cartItemCount}
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartItemCount}
                 </span>
               )}
             </button>
 
             {authUser ? (
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => dispatch(toggleProfilePanel())}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
                 >
-                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden lg:inline text-sm sm:text-base">{authUser.name}</span>
+                  <User className="w-5 h-5" />
+                  <span className="hidden sm:inline">{authUser.name}</span>
                 </button>
                 <Link
                   to="/orders"
-                  className="px-2 sm:px-4 py-1.5 sm:py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 text-sm sm:text-base"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
                 >
                   Orders
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-2 sm:px-4 py-1.5 sm:py-2 text-red-600 hover:text-red-700 text-sm sm:text-base"
+                  className="px-4 py-2 text-red-600 hover:text-red-700"
                 >
                   Logout
                 </button>
@@ -121,7 +118,7 @@ const Navbar = () => {
             ) : (
               <button
                 onClick={() => dispatch(toggleAuthPopup())}
-                className="hidden sm:block px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Login
               </button>
@@ -129,8 +126,7 @@ const Navbar = () => {
 
             <button
               onClick={() => dispatch(toggleSidebar())}
-              className="md:hidden p-1.5 sm:p-2 text-gray-700 dark:text-gray-300"
-              aria-label="Menu"
+              className="md:hidden p-2 text-gray-700 dark:text-gray-300"
             >
               <Menu className="w-5 h-5" />
             </button>
