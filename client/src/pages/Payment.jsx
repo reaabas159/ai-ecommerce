@@ -7,6 +7,7 @@ import PaymentForm from "../components/PaymentForm";
 import { loadStripe } from "@stripe/stripe-js";
 import { placeNewOrder, clearOrder } from "../store/slices/orderSlice";
 import { clearCart } from "../store/slices/cartSlice";
+import { getCurrentUser } from "../store/slices/authSlice";
 
 // Stripe publishable key - should be in env in production
 const stripePromise = loadStripe(
@@ -45,9 +46,32 @@ const Payment = () => {
     dispatch(clearOrder());
   }, [authUser, cart, navigate, dispatch]);
 
-  const handleShippingSubmit = (e) => {
+  const handleShippingSubmit = async (e) => {
     e.preventDefault();
     if (step === 1) {
+      // Verify user is authenticated before proceeding
+      if (!authUser) {
+        alert("Please login to proceed to checkout");
+        navigate("/");
+        return;
+      }
+
+      // Verify auth state is still valid by checking with server
+      try {
+        const authCheck = await dispatch(getCurrentUser());
+        
+        if (getCurrentUser.rejected.match(authCheck)) {
+          alert("Your session has expired. Please login again.");
+          navigate("/");
+          return;
+        }
+      } catch (error) {
+        console.error("Auth verification failed:", error);
+        alert("Unable to verify authentication. Please login again.");
+        navigate("/");
+        return;
+      }
+
       // Place order first
       const orderedItems = cart.map((item) => ({
         product: {
@@ -65,6 +89,12 @@ const Payment = () => {
       ).then((action) => {
         if (action.type === "order/placeNew/fulfilled") {
           setStep(2);
+        } else if (action.type === "order/placeNew/rejected") {
+          const errorMessage = action.payload || "Failed to place order. Please try again.";
+          if (errorMessage.includes("login") || errorMessage.includes("authenticated")) {
+            alert("Your session has expired. Please login again.");
+            navigate("/");
+          }
         }
       });
     }
@@ -85,28 +115,28 @@ const Payment = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
         <Link
           to="/cart"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 sm:mb-6 text-sm sm:text-base"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           Back to Cart
         </Link>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
-            <div className="flex items-center gap-2">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Checkout</h1>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${
                   step >= 1 ? "bg-blue-600 text-white" : "bg-gray-300"
                 }`}
               >
                 1
               </div>
-              <div className="w-16 h-1 bg-gray-300">
+              <div className="w-12 sm:w-16 h-1 bg-gray-300">
                 <div
                   className={`h-full ${
                     step >= 2 ? "bg-blue-600" : "bg-gray-300"
@@ -115,7 +145,7 @@ const Payment = () => {
                 />
               </div>
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${
                   step >= 2 ? "bg-blue-600 text-white" : "bg-gray-300"
                 }`}
               >
@@ -125,11 +155,11 @@ const Payment = () => {
           </div>
 
           {step === 1 ? (
-            <form onSubmit={handleShippingSubmit} className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <form onSubmit={handleShippingSubmit} className="space-y-3 sm:space-y-4">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
                 Shipping Information
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <input
                   type="text"
                   placeholder="Full Name"
@@ -138,7 +168,7 @@ const Payment = () => {
                   onChange={(e) =>
                     setShippingInfo({ ...shippingInfo, full_name: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="text"
@@ -148,7 +178,7 @@ const Payment = () => {
                   onChange={(e) =>
                     setShippingInfo({ ...shippingInfo, state: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="text"
@@ -158,7 +188,7 @@ const Payment = () => {
                   onChange={(e) =>
                     setShippingInfo({ ...shippingInfo, city: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="text"
@@ -168,7 +198,7 @@ const Payment = () => {
                   onChange={(e) =>
                     setShippingInfo({ ...shippingInfo, country: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="text"
@@ -178,7 +208,7 @@ const Payment = () => {
                   onChange={(e) =>
                     setShippingInfo({ ...shippingInfo, address: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 md:col-span-2"
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 md:col-span-2"
                 />
                 <input
                   type="number"
@@ -188,7 +218,7 @@ const Payment = () => {
                   onChange={(e) =>
                     setShippingInfo({ ...shippingInfo, pincode: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="tel"
@@ -198,17 +228,17 @@ const Payment = () => {
                   onChange={(e) =>
                     setShippingInfo({ ...shippingInfo, phone: e.target.value })
                   }
-                  className="px-4 py-2 border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 text-black dark:text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="mt-6">
-                <p className="text-lg font-semibold text-gray-900 mb-2">
+              <div className="mt-4 sm:mt-6">
+                <p className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                   Total: ${finalPrice || cart.reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0).toFixed(2)}
                 </p>
                 <button
                   type="submit"
                   disabled={placingOrder}
-                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm sm:text-base"
                 >
                   {placingOrder ? "Processing..." : "Continue to Payment"}
                 </button>
@@ -217,7 +247,7 @@ const Payment = () => {
           ) : (
             paymentIntent && (
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
                   Payment
                 </h2>
                 <Elements stripe={stripePromise}>

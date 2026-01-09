@@ -46,7 +46,12 @@ function ProtectedRoute({ children }) {
     );
   }
 
-  // Allow regular users (User role) or unauthenticated users (public pages)
+  // Redirect to home if not authenticated
+  if (!authUser) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Allow regular users (User role)
   return children;
 }
 

@@ -46,21 +46,22 @@ const PaymentForm = ({ clientSecret, onSuccess, amount }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <div className="flex items-center gap-2 mb-4">
-          <Lock className="w-5 h-5 text-gray-600" />
-          <span className="text-sm text-gray-600">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4">
+          <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+          <span className="text-xs sm:text-sm text-gray-600">
             Secure payment powered by Stripe
           </span>
         </div>
-        <div className="border border-gray-300 rounded-lg p-4 bg-white">
+        <div className="border border-gray-300 rounded-lg p-3 sm:p-4 bg-white">
           <CardElement
             options={{
               style: {
                 base: {
-                  fontSize: "16px",
+                  fontSize: "14px",
                   color: "#424770",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
                   "::placeholder": {
                     color: "#aab7c4",
                   },
@@ -73,14 +74,14 @@ const PaymentForm = ({ clientSecret, onSuccess, amount }) => {
           />
         </div>
         {error && (
-          <p className="text-red-600 text-sm mt-2">{error}</p>
+          <p className="text-red-600 text-xs sm:text-sm mt-2">{error}</p>
         )}
       </div>
 
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-gray-600">Amount</span>
-          <span className="text-2xl font-bold text-gray-900">
+      <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+        <div className="flex justify-between items-center">
+          <span className="text-sm sm:text-base text-gray-600">Amount</span>
+          <span className="text-xl sm:text-2xl font-bold text-gray-900">
             ${parseFloat(amount || 0).toFixed(2)}
           </span>
         </div>
@@ -89,16 +90,16 @@ const PaymentForm = ({ clientSecret, onSuccess, amount }) => {
       <button
         type="submit"
         disabled={!stripe || processing}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+        className="w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm sm:text-base"
       >
         {processing ? (
           <>
-            <Loader className="w-5 h-5 animate-spin" />
+            <Loader className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
             Processing Payment...
           </>
         ) : (
           <>
-            <CreditCard className="w-5 h-5" />
+            <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
             Pay ${parseFloat(amount || 0).toFixed(2)}
           </>
         )}
